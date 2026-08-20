@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Merger",
+  "version": "1.0.0",
+  "description": "Move every tab from every scattered Chrome window into the window in the middle of your displays.",
+  "minimum_chrome_version": "99",
+  "permissions": ["tabGroups", "system.display"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Merge all windows"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+K",
+        "mac": "Command+Shift+K"
+      },
+      "description": "Merge all Chrome windows into the middle one"
+    }
+  }
+}
