@@ -125,22 +125,33 @@ clickable and pinnable.
 
 ## Development
 
+No dependencies and no build step — the tests are plain Node, nothing to install.
+
 ```sh
-node --check background.js
-node --check popup.js
-python3 -m json.tool manifest.json
+npm run lint        # node --check on both scripts
+npm test            # unit suite, no browser needed
+npm run test:e2e    # drives a real headless Chrome
+npm run test:all    # all three
 ```
 
-Beyond syntax it needs a real browser. Chrome has ignored the `--load-extension`
-command-line switch since Chrome 137, so automated testing goes through the
-DevTools protocol instead: launch headless Chrome with `--remote-debugging-port`
-and `--enable-unsafe-extension-debugging`, call `Extensions.loadUnpacked`, attach
-to the extension's service-worker target, and drive `buildPlan()` / `mergeInto()`
-with `Runtime.evaluate`.
+`test/merge.test.js` runs `background.js` inside a `vm` against a mocked `chrome`
+API and a synthetic two-display layout, asserting target selection, the skip
+rules, group handling and pinned-tab handling.
+
+`test/e2e.js` launches its own throwaway headless Chrome and cleans up after
+itself. Chrome has ignored the `--load-extension` switch since Chrome 137, so the
+extension goes in via the DevTools protocol's `Extensions.loadUnpacked` (which
+needs `--enable-unsafe-extension-debugging`); the suite then attaches to the
+service-worker target and drives `buildPlan()` / `mergeInto()` with
+`Runtime.evaluate` against real windows.
 
 The assertion that matters: **every tab keeps its original tab id** across a merge.
 A re-created tab gets a new id, so identical ids before and after prove the tabs
 were genuinely moved — which is the entire premise of the extension.
+
+The pinned-tab workaround above exists because this suite caught it: the tab was
+pinned before the merge and unpinned after. The E2E suite asserts pinned state on
+both sides of the merge for that reason.
 
 ---
 

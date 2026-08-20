@@ -1,0 +1,13 @@
+{
+  "name": "chrome-tab-merger",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Merge every scattered Chrome window into the one nearest the middle of your displays.",
+  "license": "MIT",
+  "scripts": {
+    "lint": "node --check background.js && node --check popup.js",
+    "test": "node test/merge.test.js",
+    "test:e2e": "node test/e2e.js",
+    "test:all": "npm run lint && npm test && npm run test:e2e"
+  }
+}

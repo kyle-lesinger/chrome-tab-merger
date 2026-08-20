@@ -62,11 +62,16 @@ live from the clone, so the checkout has to stay put.
 
 ## Verify
 ```sh
-jq . manifest.json && node --check background.js && node --check popup.js
+npm run test:all     # lint + unit suite + end-to-end
 ```
-Beyond that it needs a real browser. The end-to-end harness used during
-development drove a throwaway headless Chrome over the DevTools protocol
-(`Extensions.loadUnpacked`, then `Runtime.evaluate` against the service worker)
-and asserted that tab ids survive the merge unchanged — same id means the tab was
-moved, not re-created, which is the whole point of this extension existing rather
-than an AppleScript one.
+- `test/merge.test.js` — no browser; runs `background.js` in a `vm` against a
+  mocked `chrome` API and a synthetic two-display layout.
+- `test/e2e.js` — launches its own headless Chrome, loads the extension via the
+  DevTools protocol (`Extensions.loadUnpacked`) and drives the real service
+  worker.
+
+The load-bearing assertion is that **tab ids survive the merge unchanged** — same
+id means the tab was moved, not re-created, which is the whole point of this
+extension existing rather than an AppleScript one. Both suites also assert pinned
+state on each side of the merge, because that is how the cross-window unpin bug
+was found. CI (`.github/workflows/ci.yml`) runs all of it on every push and PR.

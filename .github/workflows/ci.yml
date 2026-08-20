@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Syntax
+        run: |
+          node --check background.js
+          node --check popup.js
+          node --check test/merge.test.js
+          node --check test/e2e.js
+          python3 -m json.tool manifest.json > /dev/null
+
+      - name: Unit tests
+        run: npm test
+
+      # Drives a real headless Chrome over the DevTools protocol. The runner
+      # image ships Chrome; CHROME_PATH overrides the lookup if that changes.
+      - name: End-to-end tests
+        run: npm run test:e2e
